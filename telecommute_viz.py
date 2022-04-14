@@ -60,7 +60,7 @@ def set_colorscale():
     return [breakz_0,breakz_1],[colorrange_0,colorrange_1]
 
 ## Loads all the data
-@st.cache
+@st.cache(allow_output_mutation=True)
 def load_process_main_data(breaklist,colorrangelist):
     
     # helper function to translate color range and breaks into a pydeck-compatible colorscale
@@ -95,9 +95,10 @@ def load_process_main_data(breaklist,colorrangelist):
     df_pumanames = pd.read_csv('2010_PUMA_Names.csv')
     
     ## Load shapefile containing polygons for model locations
-    gdf_modellocs = gpd.read_file("model_locations_simplified_v3_clipped.shp")
-
+    gdf_modellocs = gpd.read_file("model_locations_simplified_v5_clipped.shp")
     
+    ### Simplify polygons to improve performance and make etruded shapes sleeker
+    #gdf_modellocs["geometry"] = gdf_modellocs["geometry"].simplify(.004)
 
     #####
     ## Process shapefile polygons into a format acceptable to PyDeck.
@@ -410,6 +411,7 @@ df_shapelayera,citylocdict,df_to_downloada = load_process_main_data(BREAKSlist,C
 
 fulldata_csv = convert_df(df_to_downloada) # Prepare tidy CSV file for download
 
+
 ###
 ########
 
@@ -570,7 +572,14 @@ view_state = pdk.ViewState(latitude=citylocdict[focus_city]["lat"] + st.session_
 ## Build Pydeck polygon layer, selecting particular variables for coloring and/or height based on user selections.
 polygon_layer = pdk.Layer(
         "PolygonLayer",
-        df_shapelayera,
+        df_shapelayera[["geometry",
+                        str(vardict['varselect'][var_choice]) + "_elevation",
+                        str(vardict['varselect'][var_choice]) + "hat_" + str(changetypedict['varselect'][changetype_choice]) +"_c",
+                        str(vardict['varselect'][var_choice]) + '_todisplay',
+                        str(vardict['varselect'][var_choice]) + 'hat_' + str(changetypedict['varselect'][changetype_choice]) +'_todisplay',
+                        'state2dig',
+                        'county',
+                        'locdetail']],
         id="df_shapelayera",
         opacity=0.7,
         stroked=True,
@@ -643,6 +652,5 @@ mainmap.pydeck_chart(r)
 
 ###
 ########
-
 
 
