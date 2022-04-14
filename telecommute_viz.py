@@ -471,14 +471,14 @@ changetype_choice = varselectcolumns[2].radio("Type of change to color",["Absolu
 ########
 ### Deploy map view tools to sidebar
 
-zoomit = compasscolumns_row2[1].slider("Zoom",3.0,12.0,value=8.5,step=0.5) # Zoom select tool, in the center of the tool panel (row,col) = (2,2)
-scrollincrement = .4*(8.5/zoomit)**2 # Set the lat/lon increment for clicked scrolling according to zoom level.
+zoomit = compasscolumns_row2[1].slider("Zoom",3,12,value=9,step=1,format="%d") # Zoom select tool, in the center of the tool panel (row,col) = (2,2)
+scrollincrement = .5*(8.5/zoomit)**2 # Set the lat/lon increment for clicked scrolling according to zoom level.
 
 
 ## First row of buttons
 if compasscolumns_row1[0].button('Scroll Northwest'): # Scroll to the northwest. Tool panel position (row, col) = (1,1).
-    st.session_state["viewoffset_lat"] += .6*scrollincrement/math.sqrt(2) # Shortened scroll distance for diagonals, to avoid a disorienting jump.
-    st.session_state["viewoffset_lon"] -= .6*scrollincrement/math.sqrt(2) 
+    st.session_state["viewoffset_lat"] += .75*scrollincrement/math.sqrt(2) # Shortened scroll distance for diagonals, to avoid a disorienting jump.
+    st.session_state["viewoffset_lon"] -= .75*scrollincrement/math.sqrt(2) 
 
 compasscolumns_row1[0].checkbox('Face Northwest',value=st.session_state['direction']['NW'], #Face to the northwest. Tool panel position (row, col) = (1,1).
                                on_change=setdirection,args=('NW',))
@@ -490,8 +490,8 @@ compasscolumns_row1[1].checkbox('Face North',value=st.session_state['direction']
                                on_change=setdirection,args=('N',))
 
 if compasscolumns_row1[2].button('Scroll Northeast'): # Scroll northeast. Tool panel position (row, col) = (1,3).
-    st.session_state["viewoffset_lat"] += .6*scrollincrement/math.sqrt(2) # Shortened scroll distance for diagonals, to avoid a disorienting jump.
-    st.session_state["viewoffset_lon"] += .6*scrollincrement/math.sqrt(2) 
+    st.session_state["viewoffset_lat"] += .75*scrollincrement/math.sqrt(2) # Shortened scroll distance for diagonals, to avoid a disorienting jump.
+    st.session_state["viewoffset_lon"] += .75*scrollincrement/math.sqrt(2) 
 
 compasscolumns_row1[2].checkbox('Face Northeast',value=st.session_state['direction']['NE'], #Face northeast. Tool panel position (row, col) = (1,2).
                                on_change=setdirection,args=('NE',))
@@ -514,8 +514,8 @@ compasscolumns_row2[2].checkbox('Face East',value=st.session_state['direction'][
 
 ## Second row of buttons
 if compasscolumns_row3[0].button('Scroll Southwest'): # Scroll to the southwest. Tool panel position (row, col) = (3,1).
-    st.session_state["viewoffset_lat"] -= .6*scrollincrement/math.sqrt(2) # Shortened scroll distance for diagonals, to avoid a disorienting jump.
-    st.session_state["viewoffset_lon"] -= .6*scrollincrement/math.sqrt(2) 
+    st.session_state["viewoffset_lat"] -= .75*scrollincrement/math.sqrt(2) # Shortened scroll distance for diagonals, to avoid a disorienting jump.
+    st.session_state["viewoffset_lon"] -= .75*scrollincrement/math.sqrt(2) 
 
 compasscolumns_row3[0].checkbox('Face Southwest',value=st.session_state['direction']['SW'], # Face to the northwest. Tool panel position (row, col) = (3,1).
                                on_change=setdirection,args=('SW',))
@@ -529,8 +529,8 @@ compasscolumns_row3[1].checkbox('Face South',value=st.session_state['direction']
                                on_change=setdirection,args=('S',))
 
 if compasscolumns_row3[2].button('Scroll Southeast'): # Scroll to the southeast. Tool panel position (row, col) = (3,3).
-    st.session_state["viewoffset_lat"] -= .6*scrollincrement/math.sqrt(2) # Shortened scroll distance for diagonals, to avoid a disorienting jump.
-    st.session_state["viewoffset_lon"] += .6*scrollincrement/math.sqrt(2) 
+    st.session_state["viewoffset_lat"] -= .75*scrollincrement/math.sqrt(2) # Shortened scroll distance for diagonals, to avoid a disorienting jump.
+    st.session_state["viewoffset_lon"] += .75*scrollincrement/math.sqrt(2) 
 
 compasscolumns_row3[2].checkbox('Face Southeast',value=st.session_state['direction']['SE'], # Scroll to the southeast. Tool panel position (row, col) = (3,3).
                                on_change=setdirection,args=('SE',))
@@ -668,6 +668,5 @@ mainmap.pydeck_chart(r)
 
 ###
 ########
-
 
 
