@@ -171,7 +171,12 @@ def load_process_main_data(breaklist,colorrangelist):
     df_shapelayer["Wjhat_rel"] = df_shapelayer["Wjhat_abs"]/df_shapelayer["sNWj_bl_dens"]
     ##
     ####
-    
+    missingdata = np.isnan(np.array(df_shapelayer.Land))
+    for col in ['sNRi_bl_dens','sNRi_cf_dens',\
+                'Rihat_abs','Rihat_rel',\
+                'sNWj_bl_dens','Wjhat_rel',\
+                'qhat']:
+        df_shapelayer.loc[missingdata,col] = 0
     #####
     ## Calculate variables to pass colors and heights to the map chart.
     df_shapelayer["Ri_elevation"] = df_shapelayer["sNRi_bl_dens"].apply(lambda x: (max(0,x-50))*1.5)
