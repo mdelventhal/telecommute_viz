@@ -95,8 +95,8 @@ def load_process_main_data(breaklist,colorrangelist):
     df_pumanames = pd.read_csv('2010_PUMA_Names.csv')
     
     ## Load shapefile containing polygons for model locations
-    gdf_modellocs = gpd.read_file("model_locations_simplified_v5_clipped.shp")
-    
+    gdf_modellocs = gpd.read_file("model_locations_simplified_v10.shp")
+    gdf_modellocs = gdf_modellocs.rename(columns={'lat':'lon','lon':'lat'})
     ### Simplify polygons to improve performance and make etruded shapes sleeker
     #gdf_modellocs["geometry"] = gdf_modellocs["geometry"].simplify(.004)
 
@@ -108,25 +108,33 @@ def load_process_main_data(breaklist,colorrangelist):
     loccodelist = []
     pumacodelist = []
     countycodelist = []
+    latlist = []
+    lonlist = []
     for j in range(len(polygonlist)):
         if type(polygonlist[j]) is Polygon:
             newpolylist.append(polygonlist[j])
             loccodelist.append(int(gdf_modellocs["loccode"][j]))
             pumacodelist.append(int(gdf_modellocs["pumacode"][j]))
             countycodelist.append(int(gdf_modellocs["countycode"][j]))
+            latlist.append(float(gdf_modellocs["lat"][j]))
+            lonlist.append(float(gdf_modellocs["lon"][j]))
         elif type(polygonlist[j]) is MultiPolygon:
             newpolylist += list(polygonlist[j])
             loccodelist += [int(gdf_modellocs["loccode"][j])]*len(list(polygonlist[j]))
             pumacodelist += [int(gdf_modellocs["pumacode"][j])]*len(list(polygonlist[j]))
             countycodelist += [int(gdf_modellocs["countycode"][j])]*len(list(polygonlist[j]))
-                
+            latlist += [float(gdf_modellocs["lat"][j])]*len(list(polygonlist[j]))
+            lonlist += [float(gdf_modellocs["lon"][j])]*len(list(polygonlist[j]))
+    
     allpolygons = [[list(x) for x in list(zip(poly.exterior.coords.xy[0],poly.exterior.coords.xy[1]))] for poly in newpolylist]
     ##
     #####
     
     #####
     ## Build dataframe with the processed polygons, and merge in the other data
-    df_shapelayer = pd.DataFrame({'geometry':allpolygons,'loccode':loccodelist,'pumacode':pumacodelist,'countycode':countycodelist})
+    df_shapelayer = pd.DataFrame({'geometry':allpolygons,\
+                                  'loccode':loccodelist,'pumacode':pumacodelist,'countycode':countycodelist,\
+                                  'lat':latlist,'lon':lonlist})
     
     df_shapelayer = df_shapelayer.merge(df_tele[["loccode",
                                                  "sNRi_bl","sNRi_cf",
@@ -464,7 +472,7 @@ changetype_choice = varselectcolumns[2].radio("Type of change to color",["Absolu
 ### Deploy map view tools to sidebar
 
 zoomit = compasscolumns_row2[1].slider("Zoom",3.0,12.0,value=8.5,step=0.5) # Zoom select tool, in the center of the tool panel (row,col) = (2,2)
-scrollincrement = .32*(8.5/zoomit)**2 # Set the lat/lon increment for clicked scrolling according to zoom level.
+scrollincrement = .4*(8.5/zoomit)**2 # Set the lat/lon increment for clicked scrolling according to zoom level.
 
 
 ## First row of buttons
@@ -565,14 +573,22 @@ extrusion=mainmap.checkbox("Show baseline " + vardict['forcheckbox'][var_choice]
 ## Set viewstate based on user selections
 view_state = pdk.ViewState(latitude=citylocdict[focus_city]["lat"] + st.session_state["viewoffset_lat"], \
        longitude= citylocdict[focus_city]["lon"] + st.session_state["viewoffset_lon"], \
-       zoom= zoomit, minZoom=3,maxZoom= 12, pitch= 25, bearing= st.session_state['curbearing']
+       zoom= zoomit, minZoom=3,maxZoom= 12, pitch= 40, bearing= st.session_state['curbearing'],controller=True
 )
 
 
 ## Build Pydeck polygon layer, selecting particular variables for coloring and/or height based on user selections.
+lons = np.array(df_shapelayera['lon'])
+lats = np.array(df_shapelayera['lat'])
+
+selected = lats < citylocdict[focus_city]["lat"] + st.session_state["viewoffset_lat"] + 3.6*(10/zoomit)**2
+selected &= lats > citylocdict[focus_city]["lat"] + st.session_state["viewoffset_lat"] - 3.6*(10/zoomit)**2
+selected &= lons < citylocdict[focus_city]["lon"] + st.session_state["viewoffset_lon"] + 3.6*(10/zoomit)**2
+selected &= lons > citylocdict[focus_city]["lon"] + st.session_state["viewoffset_lon"] - 3.6*(10/zoomit)**2
+
 polygon_layer = pdk.Layer(
         "PolygonLayer",
-        df_shapelayera[["geometry",
+        df_shapelayera.loc[selected,["geometry",
                         str(vardict['varselect'][var_choice]) + "_elevation",
                         str(vardict['varselect'][var_choice]) + "hat_" + str(changetypedict['varselect'][changetype_choice]) +"_c",
                         str(vardict['varselect'][var_choice]) + '_todisplay',
@@ -643,7 +659,7 @@ r = pdk.Deck(
         layers=[polygon_layer],
         initial_view_state=view_state,
         map_style=pdk.map_styles.LIGHT,
-        tooltip=tooltip,
+        tooltip=tooltip
     )
 
 ## Deploy the Deck.
@@ -652,5 +668,6 @@ mainmap.pydeck_chart(r)
 
 ###
 ########
+
 
 
