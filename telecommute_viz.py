@@ -581,10 +581,10 @@ view_state = pdk.ViewState(latitude=citylocdict[focus_city]["lat"] + st.session_
 lons = np.array(df_shapelayera['lon'])
 lats = np.array(df_shapelayera['lat'])
 
-selected = lats < citylocdict[focus_city]["lat"] + st.session_state["viewoffset_lat"] + 3.6*(10/zoomit)**2
-selected &= lats > citylocdict[focus_city]["lat"] + st.session_state["viewoffset_lat"] - 3.6*(10/zoomit)**2
-selected &= lons < citylocdict[focus_city]["lon"] + st.session_state["viewoffset_lon"] + 3.6*(10/zoomit)**2
-selected &= lons > citylocdict[focus_city]["lon"] + st.session_state["viewoffset_lon"] - 3.6*(10/zoomit)**2
+selected = lats < citylocdict[focus_city]["lat"] + st.session_state["viewoffset_lat"] + 4*(10/zoomit)**2
+selected &= lats > citylocdict[focus_city]["lat"] + st.session_state["viewoffset_lat"] - 4*(10/zoomit)**2
+selected &= lons < citylocdict[focus_city]["lon"] + st.session_state["viewoffset_lon"] + 4*(10/zoomit)**2
+selected &= lons > citylocdict[focus_city]["lon"] + st.session_state["viewoffset_lon"] - 4*(10/zoomit)**2
 
 polygon_layer = pdk.Layer(
         "PolygonLayer",
