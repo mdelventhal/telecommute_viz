@@ -1,6 +1,6 @@
 geopandas
 numpy
-pandas==1.3.4
-pydeck==0.7.1
-Shapely==1.8.0
-streamlit==1.8.1
+pandas
+pydeck
+Shapely
+streamlit
