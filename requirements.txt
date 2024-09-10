@@ -1,4 +1,4 @@
-geopandas
+geopandas==0.14.4
 numpy
 pandas
 pydeck
